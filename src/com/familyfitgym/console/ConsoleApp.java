@@ -160,6 +160,7 @@ public class ConsoleApp {
             System.out.println("  2. Marcar Asistencia");
             System.out.println("  3. Ver Mi Suscripción");
             System.out.println("  4. Ver Eventos Disponibles");
+            System.out.println("  5. Cambiar Mi Contraseña");
             System.out.println("  0. Cerrar Sesión");
             System.out.println("════════════════════════════════════════════");
             System.out.print("Seleccione una opción: ");
@@ -181,6 +182,9 @@ public class ConsoleApp {
                 case "4":
                     System.out.println("\nFuncionalidad de eventos próximamente...");
                     presioneTecla();
+                    break;
+                case "5":
+                    cambiarContrasenaUsuario(user);
                     break;
                 case "0":
                     servicioAutenticacion.cerrarSesion();
@@ -241,6 +245,7 @@ public class ConsoleApp {
             System.out.println("  4. Registrar Nuevo Socio");
             System.out.println("  5. Ver Reportes");
             System.out.println("  6. Configuración");
+            System.out.println("  7. Cambiar Contraseñas");
             System.out.println("  0. Cerrar Sesión");
             System.out.println("════════════════════════════════════════════");
             System.out.print("Seleccione una opción: ");
@@ -267,6 +272,9 @@ public class ConsoleApp {
                 case "6":
                     menuMaestrosConfiguracion(admin);
                     break;
+                case "7":
+                    menuCambiarContrasenasPropietario(admin);
+                    break;
                 case "0":
                     servicioAutenticacion.cerrarSesion();
                     System.out.println("\nSesión cerrada.");
@@ -290,6 +298,7 @@ public class ConsoleApp {
             System.out.println("  3. Registrar Pago");
             System.out.println("  4. Registrar Asistencia");
             System.out.println("  5. Ver Estadísticas del Día");
+            System.out.println("  6. Cambiar Contraseñas");
             System.out.println("  0. Cerrar Sesión");
             System.out.println("════════════════════════════════════════════");
             System.out.print("Seleccione una opción: ");
@@ -314,6 +323,9 @@ public class ConsoleApp {
                 case "5":
                     System.out.println("\nEstadísticas próximamente...");
                     presioneTecla();
+                    break;
+                case "6":
+                    menuCambiarContrasenasCajero(admin);
                     break;
                 case "0":
                     servicioAutenticacion.cerrarSesion();
@@ -1354,6 +1366,293 @@ public class ConsoleApp {
             System.out.println("\n Operación cancelada.");
         }
         
+        presioneTecla();
+    }
+
+    // ============================================
+    // FUNCIONES DE CAMBIO DE CONTRASEÑA
+    // ============================================
+
+    private static void cambiarContrasenaUsuario(Usuario user) {
+        limpiarPantalla();
+        System.out.println("\n");
+        System.out.println("         CAMBIAR MI CONTRASEÑA");
+        System.out.println("════════════════════════════════════════════");
+        
+        System.out.print("Contraseña actual: ");
+        String contrasenaActual = scanner.nextLine();
+        
+        if (!com.familyfitgym.console.utilidad.UtilidadPassword.verificarPassword(contrasenaActual, user.getHashPassword())) {
+            System.out.println("\n❌ Contraseña actual incorrecta.");
+            presioneTecla();
+            return;
+        }
+        
+        System.out.print("Nueva contraseña: ");
+        String nuevaContrasena = scanner.nextLine();
+        
+        if (nuevaContrasena.isEmpty() || nuevaContrasena.length() < 4) {
+            System.out.println("\n❌ La contraseña debe tener al menos 4 caracteres.");
+            presioneTecla();
+            return;
+        }
+        
+        System.out.print("Confirmar nueva contraseña: ");
+        String confirmarContrasena = scanner.nextLine();
+        
+        if (!nuevaContrasena.equals(confirmarContrasena)) {
+            System.out.println("\n❌ Las contraseñas no coinciden.");
+            presioneTecla();
+            return;
+        }
+        
+        user.setHashPassword(com.familyfitgym.console.utilidad.UtilidadPassword.hashPassword(nuevaContrasena));
+        servicioAutenticacion.obtenerRepositorioUsuario().guardar(user);
+        
+        System.out.println("\n✓ Contraseña actualizada exitosamente.");
+        presioneTecla();
+    }
+
+    private static void menuCambiarContrasenasPropietario(Administrador admin) {
+        while (true) {
+            limpiarPantalla();
+            System.out.println("\n");
+            System.out.println("         CAMBIAR CONTRASEÑAS");
+            System.out.println("════════════════════════════════════════════");
+            System.out.println("  1. Cambiar Mi Contraseña");
+            System.out.println("  2. Cambiar Contraseña de Empleado");
+            System.out.println("  3. Cambiar Contraseña de Socio");
+            System.out.println("  0. Volver");
+            System.out.println("════════════════════════════════════════════");
+            System.out.print("Seleccione una opción: ");
+            
+            String opcion = scanner.nextLine().trim();
+            
+            switch (opcion) {
+                case "1":
+                    cambiarContrasenaEmpleado(admin, admin);
+                    break;
+                case "2":
+                    cambiarContrasenaEmpleadoPropietario();
+                    break;
+                case "3":
+                    cambiarContrasenaSocioPropietario();
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Opción inválida.");
+                    presioneTecla();
+            }
+        }
+    }
+
+    private static void menuCambiarContrasenasCajero(Administrador admin) {
+        while (true) {
+            limpiarPantalla();
+            System.out.println("\n");
+            System.out.println("         CAMBIAR CONTRASEÑAS");
+            System.out.println("════════════════════════════════════════════");
+            System.out.println("  1. Cambiar Mi Contraseña");
+            System.out.println("  2. Cambiar Contraseña de Socio");
+            System.out.println("  0. Volver");
+            System.out.println("════════════════════════════════════════════");
+            System.out.print("Seleccione una opción: ");
+            
+            String opcion = scanner.nextLine().trim();
+            
+            switch (opcion) {
+                case "1":
+                    cambiarContrasenaEmpleado(admin, admin);
+                    break;
+                case "2":
+                    cambiarContrasenaSocioCajero();
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("Opción inválida.");
+                    presioneTecla();
+            }
+        }
+    }
+
+    private static void cambiarContrasenaEmpleado(Administrador admin, Administrador empleadoACambiar) {
+        limpiarPantalla();
+        System.out.println("\n");
+        System.out.println("    CAMBIAR CONTRASEÑA DE EMPLEADO");
+        System.out.println("════════════════════════════════════════════");
+        System.out.println("Empleado: " + empleadoACambiar.getNombres() + " " + empleadoACambiar.getApellidos());
+        System.out.println("Documento: " + empleadoACambiar.getNumDocumento());
+        System.out.println("════════════════════════════════════════════");
+        
+        // Si es el mismo usuario, pedir contraseña actual
+        if (admin.getNumDocumento().equals(empleadoACambiar.getNumDocumento())) {
+            System.out.print("Contraseña actual: ");
+            String contrasenaActual = scanner.nextLine();
+            
+            if (!com.familyfitgym.console.utilidad.UtilidadPassword.verificarPassword(contrasenaActual, admin.getHashPassword())) {
+                System.out.println("\n❌ Contraseña actual incorrecta.");
+                presioneTecla();
+                return;
+            }
+        }
+        
+        System.out.print("Nueva contraseña: ");
+        String nuevaContrasena = scanner.nextLine();
+        
+        if (nuevaContrasena.isEmpty() || nuevaContrasena.length() < 4) {
+            System.out.println("\n❌ La contraseña debe tener al menos 4 caracteres.");
+            presioneTecla();
+            return;
+        }
+        
+        System.out.print("Confirmar nueva contraseña: ");
+        String confirmarContrasena = scanner.nextLine();
+        
+        if (!nuevaContrasena.equals(confirmarContrasena)) {
+            System.out.println("\n❌ Las contraseñas no coinciden.");
+            presioneTecla();
+            return;
+        }
+        
+        empleadoACambiar.setHashPassword(com.familyfitgym.console.utilidad.UtilidadPassword.hashPassword(nuevaContrasena));
+        servicioAutenticacion.obtenerRepositorioAdministrador().guardar(empleadoACambiar);
+        
+        System.out.println("\n✓ Contraseña actualizada exitosamente.");
+        presioneTecla();
+    }
+
+    private static void cambiarContrasenaEmpleadoPropietario() {
+        limpiarPantalla();
+        System.out.println("\n");
+        System.out.println("  CAMBIAR CONTRASEÑA DE EMPLEADO");
+        System.out.println("════════════════════════════════════════════");
+        
+        var empleados = servicioAutenticacion.obtenerRepositorioAdministrador().buscarTodos();
+        
+        if (empleados.isEmpty()) {
+            System.out.println("\nNo hay empleados registrados.");
+            presioneTecla();
+            return;
+        }
+        
+        System.out.println("\nLista de Empleados:");
+        System.out.println("");
+        int i = 1;
+        for (Administrador emp : empleados) {
+            System.out.printf("%d. %s - %s %s (%s)%n", 
+                i++,
+                emp.getNumDocumento(), 
+                emp.getNombres(), 
+                emp.getApellidos(),
+                emp.getTipoEmpleado().getNombreMostrar());
+        }
+        
+        System.out.println("════════════════════════════════════════════");
+        System.out.print("\nIngrese el número del empleado: ");
+        String seleccion = scanner.nextLine().trim();
+        
+        try {
+            int index = Integer.parseInt(seleccion) - 1;
+            if (index >= 0 && index < empleados.size()) {
+                Administrador empleadoSeleccionado = empleados.get(index);
+                cambiarContrasenaEmpleado(servicioAutenticacion.obtenerAdministradorActual(), empleadoSeleccionado);
+            } else {
+                System.out.println("\n❌ Número inválido.");
+                presioneTecla();
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("\n❌ Entrada inválida.");
+            presioneTecla();
+        }
+    }
+
+    private static void cambiarContrasenaSocioPropietario() {
+        limpiarPantalla();
+        System.out.println("\n");
+        System.out.println("    CAMBIAR CONTRASEÑA DE SOCIO");
+        System.out.println("════════════════════════════════════════════");
+        
+        System.out.print("Ingrese el documento del socio: ");
+        String documento = scanner.nextLine().trim();
+        
+        if (documento.isEmpty()) {
+            System.out.println("\n❌ Debe ingresar un documento.");
+            presioneTecla();
+            return;
+        }
+        
+        Optional<Usuario> usuarioOpt = servicioAutenticacion.obtenerRepositorioUsuario().buscarPorNombreUsuario(documento);
+        
+        if (!usuarioOpt.isPresent()) {
+            System.out.println("\n❌ Socio no encontrado.");
+            presioneTecla();
+            return;
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        cambiarContrasenaSocio(usuario);
+    }
+
+    private static void cambiarContrasenaSocioCajero() {
+        limpiarPantalla();
+        System.out.println("\n");
+        System.out.println("    CAMBIAR CONTRASEÑA DE SOCIO");
+        System.out.println("════════════════════════════════════════════");
+        
+        System.out.print("Ingrese el documento del socio: ");
+        String documento = scanner.nextLine().trim();
+        
+        if (documento.isEmpty()) {
+            System.out.println("\n❌ Debe ingresar un documento.");
+            presioneTecla();
+            return;
+        }
+        
+        Optional<Usuario> usuarioOpt = servicioAutenticacion.obtenerRepositorioUsuario().buscarPorNombreUsuario(documento);
+        
+        if (!usuarioOpt.isPresent()) {
+            System.out.println("\n❌ Socio no encontrado.");
+            presioneTecla();
+            return;
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        cambiarContrasenaSocio(usuario);
+    }
+
+    private static void cambiarContrasenaSocio(Usuario usuario) {
+        limpiarPantalla();
+        System.out.println("\n");
+        System.out.println("    CAMBIAR CONTRASEÑA DE SOCIO");
+        System.out.println("════════════════════════════════════════════");
+        System.out.println("Socio: " + usuario.getNombres() + " " + usuario.getApellidos());
+        System.out.println("Documento: " + usuario.getNumDocumento());
+        System.out.println("════════════════════════════════════════════");
+        
+        System.out.print("Nueva contraseña: ");
+        String nuevaContrasena = scanner.nextLine();
+        
+        if (nuevaContrasena.isEmpty() || nuevaContrasena.length() < 4) {
+            System.out.println("\n❌ La contraseña debe tener al menos 4 caracteres.");
+            presioneTecla();
+            return;
+        }
+        
+        System.out.print("Confirmar nueva contraseña: ");
+        String confirmarContrasena = scanner.nextLine();
+        
+        if (!nuevaContrasena.equals(confirmarContrasena)) {
+            System.out.println("\n❌ Las contraseñas no coinciden.");
+            presioneTecla();
+            return;
+        }
+        
+        usuario.setHashPassword(com.familyfitgym.console.utilidad.UtilidadPassword.hashPassword(nuevaContrasena));
+        servicioAutenticacion.obtenerRepositorioUsuario().guardar(usuario);
+        
+        System.out.println("\n✓ Contraseña del socio actualizada exitosamente.");
         presioneTecla();
     }
 
